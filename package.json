@@ -1,0 +1,21 @@
+{
+  "name": "alpine-to-woo",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "A scraper to help me import products to woo-commerce",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node main.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.6.8",
+    "cheerio": "^1.0.0-rc.12",
+    "json-2-csv": "^5.5.1",
+    "json-to-csv": "^1.0.0",
+    "sharp": "^0.33.4"
+  }
+}
