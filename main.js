@@ -2,8 +2,10 @@ import axios from "axios";
 import * as cheerio from "cheerio";
 import fs from "fs";
 import { json2csv } from "json-2-csv";
+import { functionOptimizeImages } from "images-folder-optimizer";
+import sharp from "sharp";
 
-const urls = [
+const amp_urls = [
   "https://www.alpine-usa.com/product/s-series-amplifier-s2a120m",
   "https://www.alpine-usa.com/product/s-series-amplifier-s2a60m",
   "https://www.alpine-usa.com/product/s-series-amplifier-s2a55v",
@@ -14,12 +16,52 @@ const urls = [
   "https://www.alpine-usa.com/product/r-a90s-6-channel-amplifier",
 ];
 
+const subwoof_urls = [
+  "https://www.alpine-usa.com/product/s-series-subwoofer-s2w12d4",
+
+  "https://www.alpine-usa.com/product/s-series-subwoofer-s2w10d4",
+
+  "https://www.alpine-usa.com/product/s-series-subwoofer-s2w8d4",
+
+  "https://www.alpine-usa.com/product/r-series-subwoofer-r2w12d4",
+
+  "https://www.alpine-usa.com/product/r-series-subwoofer-r2w10d4",
+
+  "https://www.alpine-usa.com/product/r-series-subwoofer-r2w8d4",
+
+  "https://www.alpine-usa.com/product/r-series-shallow-subwoofer-rsw10d4",
+
+  "https://www.alpine-usa.com/product/r-series-halo-subwoofer-r2sb12v",
+
+  "https://www.alpine-usa.com/product/s-series-halo-subwoofer-enclosure-s2sb12v",
+];
+
+const speaker_urls = [
+  "https://www.alpine-usa.com/product/s-series-speakers-s2s65c",
+
+  "https://www.alpine-usa.com/product/s-series-speakers-s2s65",
+
+  "https://www.alpine-usa.com/product/s-series-speakers-s2s69c",
+
+  "https://www.alpine-usa.com/product/s-series-speakers-s2s69",
+
+  "https://www.alpine-usa.com/product/s-series-speakers-s2s50",
+
+  "https://www.alpine-usa.com/product/r-series-speakers-r2s652",
+
+  "https://www.alpine-usa.com/product/r-series-speakers-r2s65",
+
+  "https://www.alpine-usa.com/product/r-series-speakers-r2s69c",
+
+  "https://www.alpine-usa.com/product/r-series-speakers-r2s69",
+];
+
 async function get_products() {
   let product_data = {
     rows: [],
   };
   return Promise.all(
-    urls.map(async (url) => {
+    subwoof_urls.map(async (url) => {
       const response = await axios.get(url);
 
       const html = response.data;
@@ -43,6 +85,11 @@ async function get_products() {
       let images = [];
 
       let description = productSpecCopy + "\\n\\n";
+
+      $(".productHero__image").map((i, el) => {
+        const img = $(el).find("img").attr("src");
+        images.push(img);
+      });
 
       $(".productSpec__buckets__container").map((i, el) => {
         const img = $(el).find("img").attr("src");
@@ -71,33 +118,56 @@ async function get_products() {
 
       product_data.rows.push(data);
 
-      // try {
-      //   images.map((img, i) => {
-      //     let image = axios
-      //       .get(img, { responseType: "arraybuffer" })
-      //       .then((res) => {
-      //         if (!fs.existsSync(`./images/${modelName}`)) {
-      //           fs.mkdirSync(`./images/${modelName}`, { recursive: true });
-      //         }
-      //         fs.writeFileSync(
-      //           `./images/${modelName}/${modelName}_${i}.jpg`,
-      //           res.data
-      //         );
-      //       })
-      //       .catch((err) => {
-      //         console.log("failed on images", err);
-      //         console.log("model name", modelName);
-      //         console.log(err);
-      //       });
-      //   });
-      // } catch (err) {}
+      try {
+        images.map((img, i) => {
+          let image = axios
+            .get(img, { responseType: "arraybuffer" })
+            .then((res) => {
+              if (!fs.existsSync(`./images/${modelName}`)) {
+                fs.mkdirSync(`./images/${modelName}`, { recursive: true });
+              }
+              fs.writeFileSync(
+                `./images/${modelName}/${modelName}_${i}.jpg`,
+                res.data
+              );
+            })
+            .catch((err) => {
+              console.log("failed on images", err);
+              console.log("model name", modelName);
+              console.log(err);
+            });
+        });
+      } catch (err) {}
     })
   ).then(() => {
     return product_data;
   });
 }
 
-get_products().then((data) => {
-  const csv = json2csv(data.rows);
-  fs.writeFileSync("products.csv", csv);
-});
+// get_products().then((data) => {
+//   const csv = json2csv(data.rows);
+//   fs.writeFileSync("products.csv", csv);
+// });
+
+export async function resize_images() {
+  if (!fs.existsSync("static/images/optimized")) {
+    fs.mkdirSync("static/images/optimized", { recursive: true });
+  }
+
+  functionOptimizeImages({
+    stringOriginFolder: "images/",
+    stringDestinationFolder: "static/images/optimized",
+    objectResizeOptions: {
+      width: 900,
+      height: 600,
+      fit: sharp.fit.cover,
+      strategy: sharp.strategy.entropy,
+    },
+    arrayOriginFormats: ["jpg"],
+    arrayDestinationFormats: ["jpg"],
+  }).then((results) => {
+    console.table(results);
+  });
+}
+
+resize_images();

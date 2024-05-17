@@ -14,6 +14,7 @@
   "dependencies": {
     "axios": "^1.6.8",
     "cheerio": "^1.0.0-rc.12",
+    "images-folder-optimizer": "^0.0.37",
     "json-2-csv": "^5.5.1",
     "json-to-csv": "^1.0.0",
     "sharp": "^0.33.4"
