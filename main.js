@@ -42,14 +42,14 @@ async function get_products() {
 
       let images = [];
 
-      let description = productSpecCopy + "\n\n";
+      let description = productSpecCopy + "\\n\\n";
 
       $(".productSpec__buckets__container").map((i, el) => {
         const img = $(el).find("img").attr("src");
         const header = $(el).find(".productSpec__header").text();
         const copy = $(el).find(".productSpec__copy").text();
         images.push(img);
-        description += `<h3>${header}</h3>\n<p>${copy}</p>\n\n`;
+        description += `<h3>${header}</h3>\\n<p>${copy}</p>\\n\\n`;
       });
 
       $(".productApps .productApps__content").map((i, el) => {
@@ -57,7 +57,7 @@ async function get_products() {
         const header = $(el).find(".productApps__header").text();
         const copy = $(el).find(".productApps__copy").text();
         images.push(img);
-        description += `<h3>${header}</h3>\n<p>${copy}</p>\n\n`;
+        description += `<h3>${header}</h3>\\n<p>${copy}</p>\\n\\n`;
       });
 
       let data = {
